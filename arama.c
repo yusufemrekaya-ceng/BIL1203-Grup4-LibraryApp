@@ -5,6 +5,7 @@
 FILE *dos;
 int arama()
 {
+    donus3:
     system("cls");
     int a;
     char tekrar[]="Yeni Sorgu";
@@ -12,11 +13,10 @@ int arama()
     int islem=0;
     int kk=1;
     char b[50];
-    printf("Lutfen hangi konu hakkinda arama yapilacagini yanindaki numarayi tuslayarak secin\n\n\n1-Kitap Ismi\n2-Yazar Adi\n3-Kitap ID\n\n0-Geri\n");
+    printf("__________________________________________________________________________________\nLutfen hangi konu hakkinda arama yapilacagini yanindaki numarayi tuslayarak secin|\n__________________________________________________________________________________\n\n\n1-Kitap Ismi\n2-Yazar Adi\n3-Kitap ID\n\n0-Geri\n");
     scanf("%d",&a);
     while(!(a<4&&a>=0))
     {
-        system("cls");
         printf("Lutfen dogru sayiyi girin\n");
         scanf("%d",&a);
     }
@@ -78,8 +78,10 @@ int arama()
     }
     while(kk)
     {
+        
         kk=0;
         system("cls");
+        donus:
         printf("Aramak istediginiz kelimeyi girin\n");
         scanf("%s",&b);
         for(int zz=0;b[zz]!='\0';zz++)
@@ -102,7 +104,8 @@ int arama()
         system("cls");
         if(u==0)
         {
-            printf("Eslesen bir sonuc bulunamadi");
+            printf("Eslesen bir sonuc bulunamadi\n\n");
+            goto donus;
         }
         else
         {
@@ -111,8 +114,10 @@ int arama()
             while(dd>0)
             {
                 system("cls");
-                if(dd==118)
+                if(0)
                 {
+                    donus2:
+                    system("cls");
                     printf("Lutfen dogru girdi giriniz\n");
                 }
                 
@@ -126,16 +131,13 @@ int arama()
                 dd=0;
                 scanf("%d",&islem);
                 if(islem==0)
-                return 1;
+                goto donus3;
                 else if(islem==u+1)
                 {
                     kk=1;
                 }
                 else if(islem<0||islem>u+1)
-                {
-
-                    dd=118;
-                }
+                goto donus2;
                 else
                 {
                     system("cls");
