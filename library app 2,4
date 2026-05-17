@@ -1,0 +1,135 @@
+#include <stdio.h>
+#include <string.h>
+
+#define MAX 50
+
+struct Kitap {
+    char isbn[20];
+    char isim[50];
+    char yazar[50];
+    int stok;
+};
+
+struct Kitap kitaplar[MAX];
+int kitapSayisi=0;
+
+//Kitap ekleme
+void kitapEkle(){
+    
+
+    printf("ISBN giriniz: ");
+    scanf("%s", kitaplar[kitapSayisi].isbn);
+
+    printf("Kitap ismi giriniz: ");
+    scanf(" %[^\n]", kitaplar[kitapSayisi].isim); //%[^\n] bu kısım boşlukları okuması icin
+
+    printf("Yazar ismi giriniz: ");
+    scanf(" %[^\n]", kitaplar[kitapSayisi].yazar);
+
+    printf("Stok girininiz: ");
+    scanf("%d", &kitaplar[kitapSayisi].stok);
+
+    kitapSayisi++;
+
+    printf("Kitap eklendi. \n");
+}
+
+//Kitap Listeleme
+ void kitapListele(){
+     
+
+    for(int i=0; i<kitapSayisi; i++){
+        printf("\nISNB giriniz: %s\n", kitaplar[i].isbn);
+        printf("Kitabın ismini giriniz: %s\n", kitaplar[i].isim);
+        printf("Yazar ismi giriniz: %s\n", kitaplar[i].yazar);
+        printf("Stok giriniz: %d\n", kitaplar[i].stok);
+    }
+ }
+
+
+ //Kitap Guncelleme
+ void kitapGuncelle(){
+    
+    char isbn[20];
+    int bulundu=0;
+
+    printf("Guncennecek ISBN: ");
+    scanf("%s", isbn);
+
+    for(int i=0; i<kitapSayisi; i++){
+        if(strcmp(kitaplar[i].isbn, isbn)==0){
+
+            bulundu=1;
+
+            printf("Yeni kitabin ismini giriniz: ");
+            scanf(" %[^\n]",kitaplar[i].isim);
+
+            printf("Yeni yazarin ismini giriniz: ");
+            scanf(" %[^\n]", kitaplar[i].yazar),
+
+            printf("Yeni stok giriniz: ");
+            scanf("%d",&kitaplar[i].stok);
+
+            printf("Kitap guncellendi.\n");
+        }
+    }
+    if(!bulundu){
+        printf("Kitap bulunamadı.\n");
+    }
+ }
+
+ //Kitap Silme
+ void kitapSil(){
+
+    char isbn[20];
+    int bulundu=0;
+
+    printf("Silinecek ISBN'yi giriniz: ");
+    scanf("%s", isbn);
+
+    for(int i=0; i<kitapSayisi; i++){
+        if(strcmp(kitaplar[i].isbn, isbn)==0){
+            bulundu=1;
+
+            for(int j=i; j<kitapSayisi-1; j++){
+                kitaplar[j]=kitaplar[j+1];
+            }
+            kitapSayisi--;
+
+            printf("Kitap silindi.\n");
+            break;
+        }
+    }
+    if(!bulundu){
+        printf("Kitap bulunamadi.\n");
+    }
+ }
+
+ int main(){
+
+    int secim;
+
+    while(1){
+        printf("\n1- Kitap Ekle\n");
+        printf("2- Kitap Listele\n");
+        printf("3- Kitap Guncelle\n");
+        printf("4- Kitap Sil\n");
+        printf("0- Cikis\n");
+
+        printf("Secim: ");
+        scanf("%d", &secim);
+
+        switch(secim){
+
+            case 1:kitapEkle();break;
+            case 2:kitapListele();break;
+            case 3:kitapGuncelle();break;
+            case 4:kitapSil();break;
+            case 0:return 0;
+            default:
+            printf("Hatali Secim!\n");
+            }
+    }
+    return 0;
+
+ }
