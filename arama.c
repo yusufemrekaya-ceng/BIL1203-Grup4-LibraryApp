@@ -119,7 +119,7 @@ int arama()
                 printf("Eslesen sonuclar\nDetayi sonuc icin yanindaki numarayi tuslayin\nOnceki menu icin 0 i tekrar sorgu yapmak icin %d tuslayin \n\n",u+1);
                 for(int p=0;p<u;p++)
                 {
-                    printf("%d|%40s|\n",p+1,duzenli2[uyusanlar[p]][0]);
+                    printf("%d|%40s|%40s|\n",p+1,duzenli2[uyusanlar[p]][0],duzenli2[uyusanlar[p]][1]);
                 }
                 printf("\n%d|%40s|\n0|%40s|\n",u+1,tekrar,geri);
                 
@@ -139,8 +139,7 @@ int arama()
                 else
                 {
                     system("cls");
-                    printf("noı");
-                    printf("Kitap Adi :%s\nYazar Adi :%s\nKitap No :%s\nStok :%s",duzenli2[uyusanlar[islem-1]][0],duzenli2[uyusanlar[islem-1]][1],duzenli2[uyusanlar[islem-1]][2]);
+                    printf("Kitap Adi :%s\nYazar Adi :%s\nKitap No :%s\nStok :%s",duzenli2[uyusanlar[islem-1]][0],duzenli2[uyusanlar[islem-1]][1],duzenli2[uyusanlar[islem-1]][2],duzenli2[uyusanlar[islem-1]][3]);
                 }
                 
                 
