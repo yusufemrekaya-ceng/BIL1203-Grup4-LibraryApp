@@ -13,7 +13,7 @@ int arama()
     int islem=0;
     int kk=1;
     char b[50];
-    printf("__________________________________________________________________________________\nLutfen hangi konu hakkinda arama yapilacagini yanindaki numarayi tuslayarak secin|\n__________________________________________________________________________________\n\n\n1-Kitap Ismi\n2-Yazar Adi\n3-Kitap ID\n\n0-Geri\n");
+    printf("__________________________________________________________________________________\nLutfen hangi konu hakkinda arama yapilacagini yanindaki numarayi tuslayarak secin|\n_________________________________________________________________________________|\n\n\n1-Kitap Ismi\n2-Yazar Adi\n3-Kitap ID\n\n0-Geri\n");
     scanf("%d",&a);
     while(!(a<4&&a>=0))
     {
@@ -129,6 +129,7 @@ int arama()
                 printf("\n%d|%40s|\n0|%40s|\n",u+1,tekrar,geri);
                 
                 dd=0;
+                int kislem;
                 scanf("%d",&islem);
                 if(islem==0)
                 goto donus3;
@@ -138,10 +139,12 @@ int arama()
                 }
                 else if(islem<0||islem>u+1)
                 goto donus2;
+                
                 else
                 {
                     system("cls");
-                    printf("Kitap Adi :%s\nYazar Adi :%s\nKitap No :%s\nStok :%s",duzenli2[uyusanlar[islem-1]][0],duzenli2[uyusanlar[islem-1]][1],duzenli2[uyusanlar[islem-1]][2],duzenli2[uyusanlar[islem-1]][3]);
+                    printf("Kitap Adi :%s\nYazar Adi :%s\nKitap No :%s\nStok :%s\n\nYapilacak islemin yanindaki sayiyi girin\n\n1-Kiralama  2-Iade Etme  3-Geri\n",duzenli2[uyusanlar[islem-1]][0],duzenli2[uyusanlar[islem-1]][1],duzenli2[uyusanlar[islem-1]][2],duzenli2[uyusanlar[islem-1]][3]);
+                    scanf("%d",&kislem);
                 }
                 
                 
