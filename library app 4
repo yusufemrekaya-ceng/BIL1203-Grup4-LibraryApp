@@ -1,0 +1,149 @@
+#include <stdio.h>
+#include <string.h>
+
+#define MAX 50
+
+struct Kitap {
+    char isbn[20];
+    char isim[50];
+    int stok;
+
+};
+
+struct Odunc{
+    int kullanici;
+    char isbn[20];
+    int teslimEdildi;
+    
+
+};
+
+struct Kitap kitaplar[MAX];
+struct Odunc oduncler[MAX];
+
+int kitapSayisi=0;
+int oduncSayisi=0;
+
+//ORNEK KİTAPLAR
+void ornekVeri(){
+
+    strcpy(kitaplar[0].isbn, "111");
+    strcpy(kitaplar[0].isim, "Suç ve Ceza");
+    kitaplar[0].stok=3;
+
+    strcpy(kitaplar[1].isbn,"222");
+    strcpy(kitaplar[1].isim,"Sefiller");
+
+    kitaplar[1].stok=2;
+
+    kitapSayisi=2;
+}
+
+//KİTAP ODUNC ALMA
+void kitapOdunc(){
+    int kullaniciID;
+    char isbn[20];
+    int bulundu=0;
+
+    printf("Kullanici ID giriniz: ");
+    scanf("%d", &kullaniciID);
+
+    printf("Kitap ISBN giriniz: ");
+    scanf("%s", isbn);
+
+    for(int i=0; i<kitapSayisi; i++){
+        if(strcmp(kitaplar[i].isbn,isbn)==0){
+            bulundu=1;
+            if(kitaplar[i].stok>0){
+                kitaplar[i].stok--;
+
+                oduncler[oduncSayisi].kullanici=kullaniciID;
+
+                strcpy(oduncler[oduncSayisi].isbn,isbn);
+
+                oduncler[oduncSayisi].teslimEdildi=0;
+                oduncSayisi++;
+                printf("Kitap odunc verildi.\n");
+            }
+            else{ 
+                printf("Stokta kitap yok.");
+            }
+        }
+    }
+    if(!bulundu){
+        printf("Kitap bulunamadi.\n");
+    }
+}
+
+//KİTAP İADE
+
+void kitapIade(){
+    int kullaniciID;
+    char isbn[20];
+    int bulundu=0;
+
+    printf("Kullanici ID giriniz: ");
+    scanf("%d", &kullaniciID);
+
+    printf("Iade edilecek kitabin ISBN numarasini giriniz: ");
+    scanf("%s", isbn);
+
+    for(int i=0; i<oduncSayisi; i++){
+
+        if(oduncler[i].kullanici==kullaniciID && strcmp(oduncler[i].isbn,isbn)==0 && oduncler[i].teslimEdildi==0){
+            bulundu=1;
+            oduncler[i].teslimEdildi=1;
+
+            for(int j=0; j<kitapSayisi; j++){
+
+                if(strcmp(kitaplar[j].isbn,isbn)==0){
+                    kitaplar[j].stok++;
+                }
+            }
+            printf("Kitap iade edildi.\n");
+        }
+
+    }
+
+    if(!bulundu){
+        printf("Kayit bulunamadi.\n");
+    }
+}
+
+
+//KİTAPLARI GÖSTER
+
+void listele(){
+    for(int i=0; i<kitapSayisi; i++){
+        printf("\nISBN: %s\n", kitaplar[i].isbn);
+        printf("Isim: %s\n",kitaplar[i].isim);
+        printf("Stok: %d\n",kitaplar[i].stok);
+    }
+}
+
+int main(){
+
+    int secim;
+
+    ornekVeri();
+
+    while(1){
+        printf("2-Kitap odunc al\n");
+        printf("3-Kitap iade et\n");
+        printf("0-Cikis\n");
+
+        printf("Secim: ");
+        scanf("%d", &secim);
+
+        switch(secim){
+            
+            case 1: listele(); break;
+            case 2: kitapOdunc(); break;
+            case 3: kitapIade(); break;
+            case 0: return 0;
+
+            default: printf("Hatali Secim!\n");
+        }
+    }
+    return 0;
+}
