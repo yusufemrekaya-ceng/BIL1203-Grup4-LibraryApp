@@ -1,0 +1,292 @@
+#include <stdio.h>
+#include <string.h>
+
+#define MAX 50
+#ifndef KITAP_DOSYA
+#define KITAP_DOSYA "veri.txt"
+#endif
+#ifndef KULLANICI_DOSYA
+#define KULLANICI_DOSYA "kullanicilar.txt"
+#endif
+#define ODUNC_DOSYA "oduncler.txt"
+
+struct Kitap {
+    char isbn[20];
+    char isim[50];
+    int stok;
+
+};
+
+struct Odunc{
+    char kullanici[30];
+    char isbn[20];
+    int teslimEdildi;
+    
+
+};
+
+struct Kitap kitaplar[MAX];
+struct Odunc oduncler[MAX];
+char yazarlar[MAX][50];
+
+int kitapSayisi=0;
+int oduncSayisi=0;
+
+void app4KitaplariOku(){
+    FILE *dosya;
+    char satir[200];
+
+    kitapSayisi=0;
+    dosya=fopen(KITAP_DOSYA,"r");
+
+    if(dosya==NULL){
+        return;
+    }
+
+    while(fgets(satir,sizeof(satir),dosya)!=NULL && kitapSayisi<MAX){
+        if(sscanf(satir,"%49[^-]-%49[^-]-%19[^-]-%d",
+            kitaplar[kitapSayisi].isim,
+            yazarlar[kitapSayisi],
+            kitaplar[kitapSayisi].isbn,
+            &kitaplar[kitapSayisi].stok)==4){
+            kitapSayisi++;
+        }
+    }
+
+    fclose(dosya);
+}
+
+void app4KitaplariYaz(){
+    FILE *dosya;
+
+    dosya=fopen(KITAP_DOSYA,"w");
+
+    if(dosya==NULL){
+        return;
+    }
+
+    for(int i=0; i<kitapSayisi; i++){
+        fprintf(dosya,"%s-%s-%s-%d\n",
+            kitaplar[i].isim,
+            yazarlar[i],
+            kitaplar[i].isbn,
+            kitaplar[i].stok);
+    }
+
+    fclose(dosya);
+}
+
+void app4OduncleriOku(){
+    FILE *dosya;
+
+    oduncSayisi=0;
+    dosya=fopen(ODUNC_DOSYA,"r");
+
+    if(dosya==NULL){
+        return;
+    }
+
+    while(oduncSayisi<MAX &&
+        fscanf(dosya,"%29[^-]-%19[^-]-%d\n",
+            oduncler[oduncSayisi].kullanici,
+            oduncler[oduncSayisi].isbn,
+            &oduncler[oduncSayisi].teslimEdildi)==3){
+        oduncSayisi++;
+    }
+
+    fclose(dosya);
+}
+
+void app4OduncleriYaz(){
+    FILE *dosya;
+
+    dosya=fopen(ODUNC_DOSYA,"w");
+
+    if(dosya==NULL){
+        return;
+    }
+
+    for(int i=0; i<oduncSayisi; i++){
+        fprintf(dosya,"%s-%s-%d\n",
+            oduncler[i].kullanici,
+            oduncler[i].isbn,
+            oduncler[i].teslimEdildi);
+    }
+
+    fclose(dosya);
+}
+
+int app4KullaniciVarMi(char kullaniciAdi[]){
+    FILE *dosya;
+    char satir[150];
+    int id;
+    char ad[30];
+    char sifre[30];
+    int rol;
+
+    dosya=fopen(KULLANICI_DOSYA,"r");
+
+    if(dosya==NULL){
+        return 0;
+    }
+
+    while(fgets(satir,sizeof(satir),dosya)!=NULL){
+        if(sscanf(satir,"%d-%29[^-]-%29[^-]-%d",&id,ad,sifre,&rol)==4 && strcmp(ad,kullaniciAdi)==0){
+            fclose(dosya);
+            return 1;
+        }
+    }
+
+    fclose(dosya);
+    return 0;
+}
+
+//ORNEK KITAPLAR
+void ornekVeri(){
+
+    strcpy(kitaplar[0].isbn, "111");
+    strcpy(kitaplar[0].isim, "Suc ve Ceza");
+    kitaplar[0].stok=3;
+
+    strcpy(kitaplar[1].isbn,"222");
+    strcpy(kitaplar[1].isim,"Sefiller");
+
+    kitaplar[1].stok=2;
+
+    kitapSayisi=2;
+}
+
+//KITAP ODUNC ALMA
+void kitapOdunc(){
+    char kullaniciAdi[30];
+    char isbn[20];
+    int bulundu=0;
+
+    app4KitaplariOku();
+    app4OduncleriOku();
+
+    printf("Kullanici adi giriniz: ");
+    scanf("%29s", kullaniciAdi);
+
+    if(!app4KullaniciVarMi(kullaniciAdi)){
+        printf("Kayit bulunamadi.\n");
+        return;
+    }
+
+    printf("Kitap ISBN giriniz: ");
+    scanf("%s", isbn);
+
+    for(int i=0; i<kitapSayisi; i++){
+        if(strcmp(kitaplar[i].isbn,isbn)==0){
+            bulundu=1;
+            if(kitaplar[i].stok>0){
+                if(oduncSayisi>=MAX){
+                    printf("Kayit bulunamadi.\n");
+                    return;
+                }
+
+                kitaplar[i].stok--;
+
+                strcpy(oduncler[oduncSayisi].kullanici,kullaniciAdi);
+
+                strcpy(oduncler[oduncSayisi].isbn,isbn);
+
+                oduncler[oduncSayisi].teslimEdildi=0;
+                oduncSayisi++;
+                app4KitaplariYaz();
+                app4OduncleriYaz();
+                printf("Kitap odunc verildi.\n");
+            }
+            else{ 
+                printf("Stokta kitap yok.");
+            }
+        }
+    }
+    if(!bulundu){
+        printf("Kitap bulunamadi.\n");
+    }
+}
+
+//KITAP IADE
+
+void kitapIade(){
+    char kullaniciAdi[30];
+    char isbn[20];
+    int bulundu=0;
+
+    app4KitaplariOku();
+    app4OduncleriOku();
+
+    printf("Kullanici adi giriniz: ");
+    scanf("%29s", kullaniciAdi);
+
+    if(!app4KullaniciVarMi(kullaniciAdi)){
+        printf("Kayit bulunamadi.\n");
+        return;
+    }
+
+    printf("Iade edilecek kitabin ISBN numarasini giriniz: ");
+    scanf("%s", isbn);
+
+    for(int i=0; i<oduncSayisi; i++){
+
+        if(strcmp(oduncler[i].kullanici,kullaniciAdi)==0 && strcmp(oduncler[i].isbn,isbn)==0 && oduncler[i].teslimEdildi==0){
+            bulundu=1;
+            oduncler[i].teslimEdildi=1;
+
+            for(int j=0; j<kitapSayisi; j++){
+
+                if(strcmp(kitaplar[j].isbn,isbn)==0){
+                    kitaplar[j].stok++;
+                }
+            }
+            app4KitaplariYaz();
+            app4OduncleriYaz();
+            printf("Kitap iade edildi.\n");
+        }
+
+    }
+
+    if(!bulundu){
+        printf("Kayit bulunamadi.\n");
+    }
+}
+
+
+//KITAPLARI GOSTER
+
+void listele(){
+    app4KitaplariOku();
+
+    for(int i=0; i<kitapSayisi; i++){
+        printf("\nISBN: %s\n", kitaplar[i].isbn);
+        printf("Isim: %s\n",kitaplar[i].isim);
+        printf("Stok: %d\n",kitaplar[i].stok);
+    }
+}
+
+int main(){
+
+    int secim;
+
+    while(1){
+        printf("1-Kitaplari goster\n");
+        printf("2-Kitap odunc al\n");
+        printf("3-Kitap iade et\n");
+        printf("0-Cikis\n");
+
+        printf("Secim: ");
+        scanf("%d", &secim);
+
+        switch(secim){
+            
+            case 1: listele(); break;
+            case 2: kitapOdunc(); break;
+            case 3: kitapIade(); break;
+            case 0: return 0;
+
+            default: printf("Hatali Secim!\n");
+        }
+    }
+    return 0;
+}
