@@ -3,6 +3,217 @@
 #include<string.h>
 #include<time.h>
 FILE *dos;
+
+#define ARAMA_KITAP_DOSYA "veri.txt"
+#define ARAMA_KULLANICI_DOSYA "kullanicilar.txt"
+#define ARAMA_ODUNC_DOSYA "oduncler.txt"
+#define ARAMA_MAX 100
+
+int aramaKullaniciVarMi(char kullaniciAdi[])
+{
+    FILE *dosya;
+    char satir[150];
+    int id;
+    char ad[30];
+    char sifre[30];
+    int rol;
+
+    dosya=fopen(ARAMA_KULLANICI_DOSYA,"r");
+
+    if(dosya==NULL)
+    return 0;
+
+    while(fgets(satir,sizeof(satir),dosya)!=NULL)
+    {
+        if(sscanf(satir,"%d-%29[^-]-%29[^-]-%d",&id,ad,sifre,&rol)==4 && strcmp(ad,kullaniciAdi)==0)
+        {
+            fclose(dosya);
+            return 1;
+        }
+    }
+
+    fclose(dosya);
+    return 0;
+}
+
+int aramaKitapStokGuncelle(char isbn[], int fark)
+{
+    FILE *dosya;
+    char isimler[ARAMA_MAX][50];
+    char yazarlar[ARAMA_MAX][50];
+    char isbnler[ARAMA_MAX][50];
+    int stoklar[ARAMA_MAX];
+    char satir[200];
+    int kitapSayisi=0;
+    int bulundu=0;
+
+    dosya=fopen(ARAMA_KITAP_DOSYA,"r");
+
+    if(dosya==NULL)
+    return 0;
+
+    while(fgets(satir,sizeof(satir),dosya)!=NULL && kitapSayisi<ARAMA_MAX)
+    {
+        if(sscanf(satir,"%49[^-]-%49[^-]-%49[^-]-%d",isimler[kitapSayisi],yazarlar[kitapSayisi],isbnler[kitapSayisi],&stoklar[kitapSayisi])==4)
+        kitapSayisi++;
+    }
+
+    fclose(dosya);
+
+    for(int i=0;i<kitapSayisi;i++)
+    {
+        if(strcmp(isbnler[i],isbn)==0)
+        {
+            bulundu=1;
+
+            if(fark<0 && stoklar[i]<=0)
+            return -1;
+
+            stoklar[i]=stoklar[i]+fark;
+        }
+    }
+
+    if(!bulundu)
+    return 0;
+
+    dosya=fopen(ARAMA_KITAP_DOSYA,"w");
+
+    if(dosya==NULL)
+    return 0;
+
+    for(int i=0;i<kitapSayisi;i++)
+    {
+        fprintf(dosya,"%s-%s-%s-%d\n",isimler[i],yazarlar[i],isbnler[i],stoklar[i]);
+    }
+
+    fclose(dosya);
+    return 1;
+}
+
+int aramaOduncKaydiEkle(char kullaniciAdi[], char isbn[])
+{
+    FILE *dosya;
+
+    dosya=fopen(ARAMA_ODUNC_DOSYA,"a");
+
+    if(dosya==NULL)
+    return 0;
+
+    fprintf(dosya,"%s-%s-%d\n",kullaniciAdi,isbn,0);
+    fclose(dosya);
+    return 1;
+}
+
+int aramaOduncKaydiIadeEt(char kullaniciAdi[], char isbn[])
+{
+    FILE *dosya;
+    char kullanicilar[ARAMA_MAX][30];
+    char isbnler[ARAMA_MAX][20];
+    int teslimler[ARAMA_MAX];
+    int oduncSayisi=0;
+    int bulundu=0;
+
+    dosya=fopen(ARAMA_ODUNC_DOSYA,"r");
+
+    if(dosya==NULL)
+    return 0;
+
+    while(oduncSayisi<ARAMA_MAX &&
+        fscanf(dosya,"%29[^-]-%19[^-]-%d\n",kullanicilar[oduncSayisi],isbnler[oduncSayisi],&teslimler[oduncSayisi])==3)
+    {
+        oduncSayisi++;
+    }
+
+    fclose(dosya);
+
+    for(int i=0;i<oduncSayisi;i++)
+    {
+        if(strcmp(kullanicilar[i],kullaniciAdi)==0 && strcmp(isbnler[i],isbn)==0 && teslimler[i]==0)
+        {
+            teslimler[i]=1;
+            bulundu=1;
+            break;
+        }
+    }
+
+    if(!bulundu)
+    return 0;
+
+    dosya=fopen(ARAMA_ODUNC_DOSYA,"w");
+
+    if(dosya==NULL)
+    return 0;
+
+    for(int i=0;i<oduncSayisi;i++)
+    {
+        fprintf(dosya,"%s-%s-%d\n",kullanicilar[i],isbnler[i],teslimler[i]);
+    }
+
+    fclose(dosya);
+    return 1;
+}
+
+void aramaKitapOduncAl(char isbn[])
+{
+    char kullaniciAdi[30];
+    int sonuc;
+
+    printf("Kullanici adi giriniz: ");
+    scanf("%29s",kullaniciAdi);
+
+    if(!aramaKullaniciVarMi(kullaniciAdi))
+    {
+        printf("Kayit bulunamadi.\n");
+        return;
+    }
+
+    sonuc=aramaKitapStokGuncelle(isbn,-1);
+
+    if(sonuc==-1)
+    {
+        printf("Stokta kitap yok.");
+        return;
+    }
+
+    if(sonuc==0)
+    {
+        printf("Kitap bulunamadi.\n");
+        return;
+    }
+
+    if(!aramaOduncKaydiEkle(kullaniciAdi,isbn))
+    {
+        aramaKitapStokGuncelle(isbn,1);
+        printf("Kayit bulunamadi.\n");
+        return;
+    }
+
+    printf("Kitap odunc verildi.\n");
+}
+
+void aramaKitapIadeEt(char isbn[])
+{
+    char kullaniciAdi[30];
+
+    printf("Kullanici adi giriniz: ");
+    scanf("%29s",kullaniciAdi);
+
+    if(!aramaKullaniciVarMi(kullaniciAdi))
+    {
+        printf("Kayit bulunamadi.\n");
+        return;
+    }
+
+    if(!aramaOduncKaydiIadeEt(kullaniciAdi,isbn))
+    {
+        printf("Kayit bulunamadi.\n");
+        return;
+    }
+
+    aramaKitapStokGuncelle(isbn,1);
+    printf("Kitap iade edildi.\n");
+}
+
 int arama()
 {
     donus3:
@@ -19,6 +230,7 @@ int arama()
     {
         printf("Lutfen dogru sayiyi girin\n");
         scanf("%d",&a);
+        return 1;
     }
     if(a==0)
     return 1;
@@ -82,7 +294,7 @@ int arama()
         kk=0;
         system("cls");
         donus:
-        printf("Aramak istediginiz kelimeyi girin\n");
+        printf("Aramak istediginiz kitabi giriniz:\n");
         scanf("%s",&b);
         for(int zz=0;b[zz]!='\0';zz++)
         {
@@ -104,7 +316,7 @@ int arama()
         system("cls");
         if(u==0)
         {
-            printf("Eslesen bir sonuc bulunamadi\n\n");
+            printf("Eslesen bir sonuc bulunamadi.\n\n");
             goto donus;
         }
         else
@@ -143,8 +355,26 @@ int arama()
                 else
                 {
                     system("cls");
-                    printf("Kitap Adi :%s\nYazar Adi :%s\nKitap No :%s\nStok :%s\n\nYapilacak islemin yanindaki sayiyi girin\n\n1-Kiralama  2-Iade Etme  3-Geri\n",duzenli2[uyusanlar[islem-1]][0],duzenli2[uyusanlar[islem-1]][1],duzenli2[uyusanlar[islem-1]][2],duzenli2[uyusanlar[islem-1]][3]);
+                    printf("Kitap Adi :%s\nYazar Adi :%s\nKitap No :%s\nStok :%s\n\nYapilacak islemin yanindaki sayiyi girin\n\n1-Odunc alma  2-Iade Etme  3-Geri\n",duzenli2[uyusanlar[islem-1]][0],duzenli2[uyusanlar[islem-1]][1],duzenli2[uyusanlar[islem-1]][2],duzenli2[uyusanlar[islem-1]][3]);
                     scanf("%d",&kislem);
+                    if(kislem==1)
+                    {
+                        aramaKitapOduncAl(duzenli2[uyusanlar[islem-1]][2]);
+                        goto donus3;
+                    }
+                    else if(kislem==2)
+                    {
+                        aramaKitapIadeEt(duzenli2[uyusanlar[islem-1]][2]);
+                        goto donus3;
+                    }
+                    else if(kislem==3)
+                    {
+                        dd=1;
+                    }
+                    else
+                    {
+                        goto donus2;
+                    }
                 }
                 
                 

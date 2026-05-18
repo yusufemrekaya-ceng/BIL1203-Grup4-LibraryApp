@@ -2,6 +2,9 @@
 #include <string.h>
 
 #define MAX 50
+#ifndef KITAP_DOSYA
+#define KITAP_DOSYA "veri.txt"
+#endif
 
 struct Kitap {
     char isbn[20];
@@ -13,15 +16,64 @@ struct Kitap {
 struct Kitap kitaplar[MAX];
 int kitapSayisi=0;
 
+void app2KitaplariOku(){
+    FILE *dosya;
+    char satir[200];
+
+    kitapSayisi=0;
+    dosya=fopen(KITAP_DOSYA,"r");
+
+    if(dosya==NULL){
+        return;
+    }
+
+    while(fgets(satir,sizeof(satir),dosya)!=NULL && kitapSayisi<MAX){
+        if(sscanf(satir,"%49[^-]-%49[^-]-%19[^-]-%d",
+            kitaplar[kitapSayisi].isim,
+            kitaplar[kitapSayisi].yazar,
+            kitaplar[kitapSayisi].isbn,
+            &kitaplar[kitapSayisi].stok)==4){
+            kitapSayisi++;
+        }
+    }
+
+    fclose(dosya);
+}
+
+void app2KitaplariYaz(){
+    FILE *dosya;
+
+    dosya=fopen(KITAP_DOSYA,"w");
+
+    if(dosya==NULL){
+        return;
+    }
+
+    for(int i=0; i<kitapSayisi; i++){
+        fprintf(dosya,"%s-%s-%s-%d\n",
+            kitaplar[i].isim,
+            kitaplar[i].yazar,
+            kitaplar[i].isbn,
+            kitaplar[i].stok);
+    }
+
+    fclose(dosya);
+}
+
 //Kitap ekleme
 void kitapEkle(){
-    
+    app2KitaplariOku();
+
+    if(kitapSayisi>=MAX){
+        printf("Kitap bulunamadi.\n");
+        return;
+    }
 
     printf("ISBN giriniz: ");
     scanf("%s", kitaplar[kitapSayisi].isbn);
 
     printf("Kitap ismi giriniz: ");
-    scanf(" %[^\n]", kitaplar[kitapSayisi].isim); //%[^\n] bu kısım boşlukları okuması icin
+    scanf(" %[^\n]", kitaplar[kitapSayisi].isim); //%[^\n] bu kisim bosluklari okumasi icin
 
     printf("Yazar ismi giriniz: ");
     scanf(" %[^\n]", kitaplar[kitapSayisi].yazar);
@@ -30,17 +82,18 @@ void kitapEkle(){
     scanf("%d", &kitaplar[kitapSayisi].stok);
 
     kitapSayisi++;
+    app2KitaplariYaz();
 
     printf("Kitap eklendi. \n");
 }
 
 //Kitap Listeleme
  void kitapListele(){
-     
+    app2KitaplariOku();
 
     for(int i=0; i<kitapSayisi; i++){
         printf("\nISNB giriniz: %s\n", kitaplar[i].isbn);
-        printf("Kitabın ismini giriniz: %s\n", kitaplar[i].isim);
+        printf("Kitabin ismini giriniz: %s\n", kitaplar[i].isim);
         printf("Yazar ismi giriniz: %s\n", kitaplar[i].yazar);
         printf("Stok giriniz: %d\n", kitaplar[i].stok);
     }
@@ -52,6 +105,8 @@ void kitapEkle(){
     
     char isbn[20];
     int bulundu=0;
+
+    app2KitaplariOku();
 
     printf("Guncennecek ISBN: ");
     scanf("%s", isbn);
@@ -73,8 +128,11 @@ void kitapEkle(){
             printf("Kitap guncellendi.\n");
         }
     }
+    if(bulundu){
+        app2KitaplariYaz();
+    }
     if(!bulundu){
-        printf("Kitap bulunamadı.\n");
+        printf("Kitap bulunamadi.\n");
     }
  }
 
@@ -83,6 +141,8 @@ void kitapEkle(){
 
     char isbn[20];
     int bulundu=0;
+
+    app2KitaplariOku();
 
     printf("Silinecek ISBN'yi giriniz: ");
     scanf("%s", isbn);
@@ -95,6 +155,7 @@ void kitapEkle(){
                 kitaplar[j]=kitaplar[j+1];
             }
             kitapSayisi--;
+            app2KitaplariYaz();
 
             printf("Kitap silindi.\n");
             break;
